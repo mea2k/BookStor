@@ -1,7 +1,14 @@
 import { v4 as uuid } from 'uuid'
 
+// СТАТИЧЕСКИЙ КЛАСС ДЛЯ ГЕНЕРАЦИИ ID объектов
+class globalIDCounter {
+    static _id = 1
 
-//
+    static get() {
+        return (this._id++).toString()
+    }
+}
+
 class Book {
     constructor(
         title = "",
@@ -10,7 +17,7 @@ class Book {
         favorite = "",
         fileCover = "",
         fileName = "",
-        id = uuid()
+        id = globalIDCounter.get()
     ) {
         this.title = title
         this.description = description

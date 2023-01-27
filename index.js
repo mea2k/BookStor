@@ -86,7 +86,7 @@ app.get('/api/get/:id', (req, res) => {
 // PARAMS:
 //   body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
 // RETURN
-//   code - 200 или 403 (если ошибка)
+//   code - 201 или 403 (если ошибка)
 //   body - сам добавленный объект ({...})
 /////////////////////////////////////////////////
 app.post('/api/get', (req, res) => {
@@ -199,3 +199,4 @@ app.delete('/api/get/:id', (req, res) => {
 // запуск сервера на прослушивание
 const PORT = process.env.PORT || 3000
 app.listen(PORT)
+console.log('Server started at port ' + PORT + '.')

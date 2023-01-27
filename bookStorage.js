@@ -14,7 +14,9 @@ class BookStorage {
     }
 
     add(item) {
-         if (item instanceof Book) {
+        // проверка, что item является классом Book
+        // и книги с добавляемым ID в коллекции нет 
+        if (item instanceof Book && this.get(item.id) === undefined) {
             this.storage.push(item)
             return this.storage.length
         }
