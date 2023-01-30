@@ -1,6 +1,7 @@
 import express from 'express';
 import { Book } from './book.js';
 import { BookStorage } from './bookStorage.js';
+import { JSONError } from './error.js';
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -15,16 +16,13 @@ app.use(express.json())
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
-/////////////////////////////////////////////////
-// АВТОРИЗАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
-// URL:     /api/user/login
-// METHOD:  POST
-// PARAMS:
-//   none
-// RETURN
-//   code - 201
-//   body - { id: 1, mail: "test@mail.ru" } (заглушка)
-/////////////////////////////////////////////////
+/** АВТОРИЗАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
+ * URL:     /api/user/login
+ * METHOD:  POST
+ * @constructor 
+ * @returns code - 201
+ * @returns body - { id: 1, mail: "test@mail.ru" } (заглушка)
+*/
 app.post('/api/user/login', (req, res) => {
     // данные - заглушка
     const data = { id: 1, mail: "test@mail.ru" }
@@ -34,17 +32,14 @@ app.post('/api/user/login', (req, res) => {
     res.json(data)
 })
 
-/////////////////////////////////////////////////
-// ПОЛУЧЕНИЕ СПИСКА ВСЕХ КНИГ
-// URL:     /api/books
-// METHOD:  GET
-// PARAMS:
-//   none
-// RETURN
-//   code - 200
-//   body - список книг ([{...}, {...}, ...])
-/////////////////////////////////////////////////
-app.get('/api/get', (req, res) => {
+/** ПОЛУЧЕНИЕ СПИСКА ВСЕХ КНИГ
+ * URL:     /api/books
+ * METHOD:  GET
+ * @constructor
+ * @returns code - 200
+ * @returns body - список книг ([{...}, {...}, ...])
+*/
+app.get('/api/books', (req, res) => {
     // получение данных
     const data = bookStorage.getAll()
     // отправка кода ответа
@@ -53,17 +48,16 @@ app.get('/api/get', (req, res) => {
     res.json(data)
 })
 
-/////////////////////////////////////////////////
-// ПОЛУЧЕНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
-// URL:     /api/books/:id
-// METHOD:  GET
-// PARAMS:
-//   id - ID книги
-// RETURN
-//   code - 200 или 404 (если не найдена книга)
-//   body - информация о книге {...} или пусто {}
-/////////////////////////////////////////////////
-app.get('/api/get/:id', (req, res) => {
+/** ПОЛУЧЕНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
+ * URL:     /api/books/:id
+ * METHOD:  GET
+ * @constructor
+ * @params {string} id - ID книги
+ * @returns code - 200 или 404 (если не найдена книга)
+ * @returns body - информация о книге {...} 
+ *                 или информация об ошибке {"errcode", "errmsg"}
+*/
+app.get('/api/books/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
     // получение данных
@@ -71,7 +65,7 @@ app.get('/api/get/:id', (req, res) => {
     if (data === undefined) {
         // данные не найдены - отправка ошибки
         res.status(404)
-        res.json({})
+        res.json(JSONError.err404())
     } else {
         // данные найдены - отправка результата
         res.status(200)
@@ -79,17 +73,16 @@ app.get('/api/get/:id', (req, res) => {
     }
 })
 
-/////////////////////////////////////////////////
-// ДОБАВЛЕНИЕ НОВОЙ КНИГИ
-// URL:     /api/books
-// METHOD:  POST
-// PARAMS:
-//   body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
-// RETURN
-//   code - 201 или 403 (если ошибка)
-//   body - сам добавленный объект ({...})
-/////////////////////////////////////////////////
-app.post('/api/get', (req, res) => {
+/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ
+ * URL:     /api/books
+ * METHOD:  POST
+ * @constructor
+ * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
+ * @returns code - 201 или 403 (если ошибка)
+ * @returns body - сам добавленный объект ({...}) 
+ *                 или информация об ошибке {"errcode", "errmsg"}
+*/
+app.post('/api/books', (req, res) => {
     // получение данных из тела POST-запроса
     const {
         title,
@@ -119,22 +112,22 @@ app.post('/api/get', (req, res) => {
     } else {
         // данные НЕ добавлены
         res.status(403)
-        res.json('Что-то на сервере пошло не так... Обратитесь к администратору!')
+        res.json(JSONError.err403('Что-то на сервере пошло не так... Обратитесь к администратору!'))
     }
 })
 
-/////////////////////////////////////////////////
-// РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
-// URL:     /api/books/:id
-// METHOD:  PUT
-// PARAMS:
-//   id - ID книги
-//   body - новые параметры книги (title,description,authors,favorite,fileCover,fileName)
-// RETURN
-//   code - 200 или 404 (если не найдена книга)
-//   body - информация о книге {...} или пусто {}
-/////////////////////////////////////////////////
-app.put('/api/get/:id', (req, res) => {
+/** РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
+ * URL:     /api/books/:id
+ * METHOD:  PUT
+ * PARAMS:
+ * @constructor
+ * @params {String} id   - ID книги
+ * @params {JSON}   body - новые параметры книги (title,description,authors,favorite,fileCover,fileName)
+ * @returns code - 200 или 404 (если не найдена книга)
+ * @returns body - информация о книге {...}
+ *                 или информация об ошибке {"errcode", "errmsg"}
+*/
+app.put('/api/books/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
     // получение данных из тела PUT-запроса
@@ -158,7 +151,7 @@ app.put('/api/get/:id', (req, res) => {
     if (data === undefined) {
         // данные не изменены - отправка ошибки
         res.status(404)
-        res.json({})
+        res.json(JSONError.err404())
     } else {
         // данные изменены - отправка результата
         res.status(200)
@@ -166,17 +159,16 @@ app.put('/api/get/:id', (req, res) => {
     }
 })
 
-/////////////////////////////////////////////////
-// УДАЛЕНИЕ ВЫБРАННОЙ КНИГИ
-// URL:     /api/books/:id
-// METHOD:  DELETE
-// PARAMS:
-//   id - ID книги
-// RETURN
-//   code - 200 или 404 (если не найдена книга)
-//   body - 'ok' или пусто
-/////////////////////////////////////////////////
-app.delete('/api/get/:id', (req, res) => {
+/** УДАЛЕНИЕ ВЫБРАННОЙ КНИГИ
+ * URL:     /api/books/:id
+ * METHOD:  DELETE
+ * @constructor
+ * @params {String} id   - ID книги
+ * @returns code - 200 или 404 (если не найдена книга)
+ * @returns body - 'ok'
+ *                 или информация об ошибке {"errcode", "errmsg"}
+*/
+app.delete('/api/books/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
     // выполнение действия с хранилищем - 
@@ -185,7 +177,7 @@ app.delete('/api/get/:id', (req, res) => {
     if (data === 0) {
         // данные не удалены - отправка ошибки
         res.status(404)
-        res.json({})
+        res.json(JSONError.err404())
     } else {
         // данные удалены
         res.status(200)
