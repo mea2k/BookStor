@@ -47,5 +47,8 @@ class BookStorage {
 
 }
 
+// Создание глобального объекта "ХРАНИЛИЩЕ КНИГ"
+const bookStorage = new BookStorage()
 
-export {BookStorage}
+// экспорт не класса, а объекта
+export {bookStorage}
