@@ -71,13 +71,16 @@ booksRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
         authors,
         favorite,
         fileCover,
-        fileName
     } = req.body
 
     // загрузка файла
+    // и сохранение оригинального имени (fileName)
+    // fileBook - сгенерированное имя файла на сервере
     let fileBook = ''
+    let fileName = ''
     if (req.file) {
         fileBook = req.file.path
+        fileName = req.file.originalname
     }
 
     // создание нового объекта - Книга
@@ -90,6 +93,7 @@ booksRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
         fileName,
         fileBook
     )
+
     // выполнение действия с хранилищем - 
     // добавление новой книги
     const data = bookStorage.add(newBook)
@@ -169,12 +173,18 @@ booksRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => {
         res.json(JSONError.err404())
     } else {
         // данные найдены - обновление данных
-        let fileBook = ''
+        // и сохранение оригинального имени (fileName)
+        // fileBook - сгенерированное имя файла на сервере
+    let fileBook = ''
+        let fileName = ''
         if (req.file) {
             fileBook = req.file.path
+            fileName = req.file.originalname
         }
+
         const newData = {
             ...data,
+            fileName,
             fileBook
         }
         const result = bookStorage.modify(id, newData)
@@ -211,10 +221,11 @@ booksRouter.get('/:id/download', (req, res) => {
         res.json(JSONError.err404())
     } else {
         // данные найдены - обновление данных
-        const { fileBook } = data
+        const { fileBook, fileName } = data
         res.status(200)
         // отправляем файл через метод res.download
-        res.download(fileBook, (err, data) => {
+        // и указываем оригинальное имя файла
+        res.download(fileBook, fileName, (err, data) => {
         //fs.readFile(fileBook, 'utf8', (err, data) => {
             if (err) {
                 res.status(404)
