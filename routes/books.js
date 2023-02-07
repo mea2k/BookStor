@@ -53,7 +53,7 @@ booksRouter.get('/:id', (req, res) => {
 })
 
 
-/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ
+/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ С ЗАГРУЗКОЙ ФАЙЛА
  * URL:     /api/books
  * METHOD:  POST
  * @constructor
@@ -62,7 +62,7 @@ booksRouter.get('/:id', (req, res) => {
  * @returns body - сам добавленный объект ({...}) 
  *                 или информация об ошибке {"errcode", "errmsg"}
 */
-booksRouter.post('/', (req, res) => {
+booksRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
     // получение данных из тела POST-запроса
     const {
         title,
@@ -73,6 +73,12 @@ booksRouter.post('/', (req, res) => {
         fileName
     } = req.body
 
+    // загрузка файла
+    let fileBook = ''
+    if (req.file) {
+        fileBook = req.file.path
+    }
+
     // создание нового объекта - Книга
     const newBook = new Book(
         title,
@@ -80,7 +86,8 @@ booksRouter.post('/', (req, res) => {
         authors,
         favorite,
         fileCover,
-        fileName
+        fileName,
+        fileBook
     )
     // выполнение действия с хранилищем - 
     // добавление новой книги
@@ -204,16 +211,19 @@ booksRouter.get('/:id/download', (req, res) => {
     } else {
         // данные найдены - обновление данных
         const { fileBook } = data
-        fs.readFile(fileBook, 'utf8', (err, data) => {
+        res.status(200)
+        // отправляем файл через метод res.download
+        res.download(fileBook, (err, data) => {
+        //fs.readFile(fileBook, 'utf8', (err, data) => {
             if (err) {
                 res.status(404)
-                res.json(JSONError.err404())
+                res.json(JSONError.err404('Ошибка чтения файла'))
             }
-            else {
-                res.status(200)
-                res.send(data)
-            }
-        })
+        //     else {
+        //         res.status(200)
+        //         res.send(fileBook)
+        //     }
+         })
     }
 
 })
@@ -242,31 +252,6 @@ booksRouter.delete('/:id', (req, res) => {
         // данные удалены
         res.status(200)
         res.json('ok')
-    }
-})
-
-/** ПОЛУЧЕНИЕ ФАЙЛА КНИГИ ВЫБРАННОЙ КНИГИ
- * URL:     /api/books/:id/download
- * METHOD:  GET
- * @constructor
- * @params {string} id - ID книги
- * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - содержимое файла 
- *                 или информация об ошибке {"errcode", "errmsg"}
-*/
-booksRouter.get('/:id/download', (req, res) => {
-    // получение параметров запроса
-    const { id } = req.params
-    // получение данных
-    const data = bookStorage.get(id)
-    if (data === undefined) {
-        // данные не найдены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные найдены - отправка результата
-        res.status(200)
-        res.json(data)
     }
 })
 
