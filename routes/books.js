@@ -57,7 +57,8 @@ booksRouter.get('/:id', (req, res) => {
  * URL:     /api/books
  * METHOD:  POST
  * @constructor
- * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName,fileBook)
+ * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
+ * @params FILE  fileBook - загружаемый на сервер файл (элемент fileBook типа FILE в форме)
  * @returns code - 201 или 403 (если ошибка)
  * @returns body - сам добавленный объект ({...}) 
  *                 или информация об ошибке {"errcode", "errmsg"}
