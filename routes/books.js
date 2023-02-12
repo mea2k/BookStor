@@ -1,270 +1,305 @@
 import express from 'express';
 import fs from 'fs'
 
-import { bookStorage } from '../bookStorage.js';
-import { Book } from '../book.js';
+
 import { JSONError } from '../error.js';
+import { bookStorage } from '../bookStorage.js';
 import fileMulter from '../middleware/fileMulter.js';
 
+// нужно, чтобы fetch работал
+const API_URL = '/api/books/'
+const URL_PREFIX = 'http://'
 
 
 const booksRouter = express.Router()
 
-/** ПОЛУЧЕНИЕ СПИСКА ВСЕХ КНИГ
- * URL:     /api/books 
+/** ОТОБРАЖЕНИЕ СПИСКА ВСЕХ КНИГ
+ * URL:     /books 
  * METHOD:  GET
  * @constructor
  * @returns code - 200
- * @returns body - список книг ([{...}, {...}, ...])
+ * @returns body - список книг в EJS-шаблоне index.ejs
 */
 booksRouter.get('/', (req, res) => {
     // получение данных
-    const data = bookStorage.getAll()
-    // отправка кода ответа
-    res.status(200)
-    // отправка тела ответа
-    res.json(data)
+    fetch(URL_PREFIX + req.headers?.host + API_URL).then((apiRes) => {
+        if (apiRes.ok) {
+            apiRes.json().then((data) => {
+                res.status(200)
+                res.render('pages/books/index', {
+                    title: 'Список книг',
+                    data
+                })
+            })
+        }
+        else {
+            res.status(apiRes.status)
+            res.render('errors/index', {
+                title: apiRes.status,
+                data: JSONError.make(apiRes.status, 'Что-то на сервере пошло не так... Обратитесь к администратору!')
+            })
+        }
+    })
 })
 
 
-/** ПОЛУЧЕНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
- * URL:     /api/books/:id
+/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ С ЗАГРУЗКОЙ ФАЙЛА - ФОРМА
+ * URL:     /books/add
  * METHOD:  GET
  * @constructor
- * @params {string} id - ID книги
- * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - информация о книге {...} 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns code - 200
+ * @returns body - форма добавления книги на базе шаблона books/add_edit.ejs
 */
-booksRouter.get('/:id', (req, res) => {
-    // получение параметров запроса
-    const { id } = req.params
-    // получение данных
-    const data = bookStorage.get(id)
-    if (data === undefined) {
-        // данные не найдены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные найдены - отправка результата
-        res.status(200)
-        res.json(data)
-    }
+booksRouter.get('/add', (req, res) => {
+    // отображение формы
+    res.status(200)
+    res.render('pages/books/add_edit', {
+        title: 'Добавление книги',
+        action: 'Добавить',
+        data: {}
+    })
 })
 
 
-/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ С ЗАГРУЗКОЙ ФАЙЛА
- * URL:     /api/books
+/** ДОБАВЛЕНИЕ НОВОЙ КНИГИ С ЗАГРУЗКОЙ ФАЙЛА - ОБРАБОТКА ФОРМЫ
+ * URL:     /books/add
  * METHOD:  POST
  * @constructor
  * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
  * @params FILE  fileBook - загружаемый на сервер файл (элемент fileBook типа FILE в форме)
  * @returns code - 201 или 403 (если ошибка)
- * @returns body - сам добавленный объект ({...}) 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns none - перенаправляет на список книг ('/books') 
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
 */
-booksRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
-    // получение данных из тела POST-запроса
-    const {
-        title,
-        description,
-        authors,
-        favorite,
-        fileCover,
-    } = req.body
+booksRouter.post('/add', (req, res) => {
 
-    // загрузка файла
-    // и сохранение оригинального имени (fileName)
-    // fileBook - сгенерированное имя файла на сервере
-    let fileBook = ''
-    let fileName = ''
-    if (req.file) {
-        fileBook = req.file.path
-        fileName = req.file.originalname
+    console.log('POST-ADD')
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL
+    const headers = {
+        //'hostname': req.headers.host,
+        'method': 'POST',
+        'path': API_URL,
+        'headers': {
+            'json': true,
+            'Content-Type': 'application/json',
+        },
+        'body': JSON.stringify({ ...req.body }),
     }
 
-    // создание нового объекта - Книга
-    const newBook = new Book(
-        title,
-        description,
-        authors,
-        favorite,
-        fileCover,
-        fileName,
-        fileBook
-    )
-
-    // выполнение действия с хранилищем - 
-    // добавление новой книги
-    const data = bookStorage.add(newBook)
-    if (data > 0) {
-        // данные добавлены успешно
-        res.status(201)
-        res.json(newBook)
-    } else {
-        // данные НЕ добавлены
-        res.status(403)
-        res.json(JSONError.err403('Что-то на сервере пошло не так... Обратитесь к администратору!'))
-    }
+    fetch(apiUrl, headers).then((apiRes) => {
+        if (apiRes.ok) {
+            // данные добавлены
+            apiRes.json().then((data) => {
+                console.log('Added data:')
+                console.log({ ...data })
+                res.redirect('/books')
+            })
+        } else {
+            // данные НЕ добавлены
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
+        }
+    })
 })
 
 
-/** РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
- * URL:     /api/books/:id
- * METHOD:  PUT
+/** ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ
+ * URL:     /books/:id
+ * METHOD:  GET
+ * @constructor
+ * @params {string} id - ID книги
+ * @returns code - 200 или 404 (если не найдена книга)
+ * @returns body - информация о книге в EJS-шаблоне book.ejs 
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
+*/
+booksRouter.get('/:id', (req, res) => {
+    // получение параметров запроса
+    const { id } = req.params
+    // получение данных
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    fetch(apiUrl).then((apiRes) => {
+        if (apiRes.ok) {
+            apiRes.json().then((data) => {
+                res.status(200)
+                res.render('pages/books/view', {
+                    title: 'Информация о книге ' + data.title,
+                    data
+                })
+            })
+        }
+        else {
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
+
+        }
+    })
+})
+
+
+/** РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ - ФОРМА
+ * URL:     /books/edit/:id
+ * METHOD:  GET
+ * PARAMS:
+ * @constructor
+ * @params {String} id   - ID книги
+ * @returns code - 200 или 404 (если не найдена книга)
+ * @returns none - форма редактирования книги в EJS-шаблоне form.ejs 
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
+*/
+booksRouter.get('/edit/:id', (req, res) => {
+    // получение параметров запроса
+    const { id } = req.params
+
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    fetch(apiUrl).then((apiRes) => {
+        if (apiRes.ok) {
+            apiRes.json().then((data) => {
+                res.status(200)
+                res.render('pages/books/add_edit', {
+                    title: 'Редактирование информации о книге ' + data.title,
+                    action: 'Сохранить',
+                    data
+                })
+            })
+        }
+        else {
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
+
+        }
+    })
+})
+
+
+/** РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ ПО ВЫБРАННОЙ КНИГЕ - СОХРАНЕНИЕ
+ * URL:     /books/edit/:id
+ * METHOD:  POST
  * PARAMS:
  * @constructor
  * @params {String} id   - ID книги
  * @params {JSON}   body - новые параметры книги (title,description,authors,favorite,fileCover,fileName)
  * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - информация о книге {...}
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns none - перенаправляет на страницу книги ('/books/:id') 
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
 */
-booksRouter.put('/:id', (req, res) => {
+booksRouter.post('/edit/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
-    // получение данных из тела PUT-запроса
-    // и создание нового объекта с новыми значениями параметров
-    let newBookData = {}
-    if (req.body.title)
-        newBookData.title = req.body.title
-    if (req.body.description)
-        newBookData.description = req.body.description
-    if (req.body.authors)
-        newBookData.authors = req.body.authors
-    if (req.body.favorite)
-        newBookData.favorite = req.body.favorite
-    if (req.body.fileCover)
-        newBookData.fileCover = req.body.fileCover
-    if (req.body.fileName)
-        newBookData.fileName = req.body.fileName
-    // выполнение действия с хранилищем - 
-    // изменение параметров существующей книги
-    const data = bookStorage.modify(id, newBookData)
-    if (data === undefined) {
-        // данные не изменены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные изменены - отправка результата
-        res.status(200)
-        res.json(data)
+
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    const headers = {
+        'hostname': req.headers?.host,
+        'method': 'PUT',
+        'path': API_URL + id,
+        'headers': {
+            'json': true,
+            'Content-Type': 'application/json',
+        },
+        'body': JSON.stringify({ id, ...req.body }),
     }
-})
-
-
-/** ДОБАВЛЕНИЕ ФАЙЛА ДЛЯ ВЫБРАННОЙ КНИГИ
- * URL:     /api/books/:id/upload
- * METHOD:  POST
- * @constructor
- * @params {multipart-formdata} fileBook - загружаемый файл
- * @returns code - 201 или 403 или 404 (если ошибка)
- * @returns body - измененный объект с именем добавленного файла ({...}) 
- *                 или информация об ошибке {"errcode", "errmsg"}
-*/
-booksRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => {
-    // получение параметров запроса
-    const { id } = req.params
-
-    const data = bookStorage.get(id)
-    if (data === undefined) {
-        // данные не найдены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные найдены - обновление данных
-        // и сохранение оригинального имени (fileName)
-        // fileBook - сгенерированное имя файла на сервере
-    let fileBook = ''
-        let fileName = ''
-        if (req.file) {
-            fileBook = req.file.path
-            fileName = req.file.originalname
-        }
-
-        const newData = {
-            ...data,
-            fileName,
-            fileBook
-        }
-        const result = bookStorage.modify(id, newData)
-        if (result === undefined) {
-            // данные не изменены - отправка ошибки
-            res.status(403)
-            res.json(JSONError.err403())
+    fetch(apiUrl, headers).then((apiRes) => {
+        if (apiRes.ok) {
+            // данные обновлены
+            res.redirect('/books/' + id)
         } else {
-            // данные изменены - отправка результата
-            res.status(200)
-            res.json(result)
+            // данные НЕ обновлены
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
         }
-    }
+    })
 })
+
+
 
 
 /** СКАЧИВАНИЕ ФАЙЛА ДЛЯ ВЫБРАННОЙ КНИГИ
- * URL:     /api/books/:id/download
+ * URL:     /books/:id/download
  * METHOD:  GET
  * @constructor
  * @params {string} id - ID книги
  * @returns code - 200 или 404 (если не найдена книга)
  * @returns body - содержимое файла 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
 */
 booksRouter.get('/:id/download', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
 
-    const data = bookStorage.get(id)
-    if (data === undefined) {
-        // данные не найдены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные найдены - обновление данных
-        const { fileBook, fileName } = data
-        res.status(200)
-        // отправляем файл через метод res.download
-        // и указываем оригинальное имя файла
-        res.download(fileBook, fileName, (err, data) => {
-        //fs.readFile(fileBook, 'utf8', (err, data) => {
-            if (err) {
-                res.status(404)
-                res.json(JSONError.err404('Ошибка чтения файла'))
-            }
-        //     else {
-        //         res.status(200)
-        //         res.send(fileBook)
-        //     }
-         })
-    }
-
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id + '/download'
+    fetch(apiUrl).then((apiRes) => {
+        if (apiRes.ok) {
+            apiRes.data().then((data) => {
+                res.status(200)
+                res.download(data)
+            })
+        }
+        else {
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
+        }
+    })
 })
 
 
 /** УДАЛЕНИЕ ВЫБРАННОЙ КНИГИ
- * URL:     /api/books/:id
- * METHOD:  DELETE
+ * URL:     /books/delete/:id
+ * METHOD:  POST
  * @constructor
  * @params {String} id   - ID книги
  * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - 'ok'
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns none - перенаправляет на страницу списка книг ('/books') 
+ *                 или страница с ошибкой на базе шаблона errors/index.ejs
 */
-booksRouter.delete('/:id', (req, res) => {
+booksRouter.post('/delete/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
-    // выполнение действия с хранилищем - 
     // удаление существующей книги
-    const data = bookStorage.delete(id)
-    if (data === 0) {
-        // данные не удалены - отправка ошибки
-        res.status(404)
-        res.json(JSONError.err404())
-    } else {
-        // данные удалены
-        res.status(200)
-        res.json('ok')
+    const headers = {
+        method: 'DELETE'
     }
+
+    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    console.log(apiUrl)
+    // получение данных
+    fetch(apiUrl, headers).then((apiRes) => {
+        if (apiRes.ok) {
+            res.redirect('/books')
+        }
+        else {
+            apiRes.json().then((data) => {
+                res.status(apiRes.status)
+                res.render('errors/index', {
+                    title: apiRes.status,
+                    data
+                })
+            })
+        }
+    })
 })
 
 

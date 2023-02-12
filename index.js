@@ -1,9 +1,10 @@
-import express from 'express';
-import logger from './middleware/logger.js';
+import express from 'express'
+import logger from './middleware/logger.js'
 import err404 from './middleware/err404.js'
-import booksRouter from './routes/books.js'
-import userRouter from './routes/user.js'
-
+import booksRouter from './routes/api/books.js'
+import booksEJSRouter from './routes/books.js'
+import userRouter from './routes/api/user.js'
+import indexEJSRouter from './routes/index.js'
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -13,14 +14,27 @@ import userRouter from './routes/user.js'
 const app = express()
 app.use(express.json())
 
+app.use(express.urlencoded({extended: true}));
+
+// используем шаблонизатор EJS
+app.set('view engine', 'ejs');
+
 // Подключение moddleware
 app.use(logger)
 
 // Подключение обработчиков URL
+app.use('/books', booksEJSRouter)
 app.use('/api/books', booksRouter)
 app.use('/api/user', userRouter)
+app.use('/', indexEJSRouter)
 
 app.use(err404)
+
+
+
+
+
+
 
 
 /////////////////////////////////////////////////
