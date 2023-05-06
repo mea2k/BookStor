@@ -47,7 +47,6 @@ booksAPIRouter.get('/:id', (req, res) => {
         res.json(JSONError.err404())
     } else {
         // данные найдены - отправка результата
-        console.log({ ...data })
         res.status(200)
         res.json(data)
     }
@@ -75,8 +74,8 @@ booksAPIRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
     } = req.body
 
     // console.log({ ...req.headers })
-    // console.log({ ...req.body })
-    // console.log({ ...req.file })
+    //console.log({ ...req.body })
+    //console.log({ ...req.file })
 
 
 
@@ -148,7 +147,7 @@ booksAPIRouter.put('/:id', fileMulter.single('fileBook'), (req, res) => {
         newBookData.fileBook = req.body.fileBook
     if (req.file) {
         newBookData.fileBook = req.file.path
-        newBookData.fileName = req.file.originalname
+        newBookData.fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
     }
 
     // выполнение действия с хранилищем - 
@@ -238,7 +237,7 @@ booksAPIRouter.get('/:id/download', (req, res) => {
         res.status(200)
         // отправляем файл через метод res.download
         // и указываем оригинальное имя файла
-        res.download(fileBook, fileName, (err, data) => {
+         res.download(fileBook, fileName, (err, data) => {
             //fs.readFile(fileBook, 'utf8', (err, data) => {
             if (err) {
                 res.status(404)
