@@ -2,7 +2,7 @@ import fs from 'fs'
 import { Book } from './book.js'
 
 class BookStorage {
-    constructor(fileName = "public/bookstorage.json") {
+    constructor(fileName = "data/bookstorage.json") {
         this.fileName = fileName
         try {
             this.storage = JSON.parse(fs.readFileSync(fileName, 'utf8')) || [];

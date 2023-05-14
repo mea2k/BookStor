@@ -1,6 +1,8 @@
 import fs from 'fs'
 import os from 'os'
 
+const LOGFILE = 'data/server.log' 
+
 const logger = (req, res, next) => {
     const { url, method } = req
     const date = new Date()
@@ -10,7 +12,7 @@ const logger = (req, res, next) => {
 
     const data = `${dateStr} - ${method.slice(0,4)}\t${url}`
     fs.appendFile(
-        'server.log',
+        LOGFILE,
         data + os.EOL,
         (err) => {
             if (err) {
