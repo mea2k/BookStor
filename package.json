@@ -1,16 +1,16 @@
 {
-  "name": "books_restapi",
+  "name": "bookstor",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "watch": "nodemon index.js"
+    "watch": "nodemon --ignore ./public/ index.js"
   },
   "repository": {
     "type": "git",
-    "url": "github.com/mea2k/express"
+    "url": "github.com/mea2k/bookstor"
   },
   "author": "Eugene",
   "license": "ISC",

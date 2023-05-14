@@ -2,8 +2,6 @@ import fs from 'fs'
 import os from 'os'
 import multer from 'multer'
 
-let counter = 1
-
 /////////////////////////////////////////////////
 
 const UPLOAD_PATH = 'public/fileBook'
@@ -17,12 +15,12 @@ const storage = multer.diskStorage({
     },
     filename(req, file, cb) {
         const date = Date.now()
-        const id  = counter++
-        console.log(`id=${id}`)
-       if (id)
-            cb(null, `${id}_${date}.${file.originalname.split('.').pop()}`)
+        const { id } = req.params || ''
+        if (id)
+           cb(null, `${id}_${date}.${file.originalname.split('.').pop()}`)
         else
-            throw Error('No book ID')
+            cb(null, `${date}.${file.originalname.split('.').pop()}`)
+            // throw Error('No book ID')
     }
 })
 

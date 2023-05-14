@@ -2,7 +2,7 @@ import express from 'express'
 import logger from './middleware/logger.js'
 import err404 from './middleware/err404.js'
 import booksRouter from './routes/api/books.js'
-import booksEJSRouter from './routes/books.js'
+import booksEJSRouter from './routes/books/index.js'
 import userRouter from './routes/api/user.js'
 import indexEJSRouter from './routes/index.js'
 

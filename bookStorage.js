@@ -1,8 +1,20 @@
+import fs from 'fs'
 import { Book } from './book.js'
 
 class BookStorage {
-    constructor() {
-        this.storage = []
+    constructor(fileName = "public/bookstorage.json") {
+        this.fileName = fileName
+        try {
+            this.storage = JSON.parse(fs.readFileSync(fileName, 'utf8')) || [];
+        } catch (e) {
+            this.storage = [];
+        }
+        //console.log({...this.storage})
+    }
+
+    dumpToFile() {
+        let json = JSON.stringify(this.storage)
+        fs.writeFileSync(this.fileName, json);
     }
 
     getAll() {
@@ -18,6 +30,7 @@ class BookStorage {
         // и книги с добавляемым ID в коллекции нет 
         if (item instanceof Book && this.get(item.id) === undefined) {
             this.storage.push(item)
+            this.dumpToFile()
             return this.storage.length
         }
         return -1
@@ -31,6 +44,7 @@ class BookStorage {
                 ...item,
                 id: id
             }
+            this.dumpToFile()
             return this.storage[idx]
         }
         return undefined
@@ -40,6 +54,7 @@ class BookStorage {
         const idx = this.storage.findIndex((e) => e.id === id)
         if (idx !== -1) {
             this.storage.splice(idx, 1)
+            this.dumpToFile()
             return 1
         }
         return 0
@@ -51,4 +66,4 @@ class BookStorage {
 const bookStorage = new BookStorage()
 
 // экспорт не класса, а объекта
-export {bookStorage}
+export { bookStorage }

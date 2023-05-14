@@ -15,7 +15,7 @@ const booksAPIRouter = express.Router()
  * METHOD:  GET
  * @constructor
  * @returns code - 200
- * @returns body - список книг ([{...}, {...}, ...])
+ * @returns body - список книг в формате JSON ([{...}, {...}, ...])
 */
 booksAPIRouter.get('/', (req, res) => {
     // получение данных
@@ -33,8 +33,8 @@ booksAPIRouter.get('/', (req, res) => {
  * @constructor
  * @params {string} id - ID книги
  * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - информация о книге {...} 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns body - информация о книге в формате JSON {...} 
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.get('/:id', (req, res) => {
     // получение параметров запроса
@@ -60,8 +60,8 @@ booksAPIRouter.get('/:id', (req, res) => {
  * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
  * @params FILE  fileBook - загружаемый на сервер файл (элемент fileBook типа FILE в форме)
  * @returns code - 201 или 403 (если ошибка)
- * @returns body - сам добавленный объект ({...}) 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns body - сам добавленный объект в формате JSON ({...}) 
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
     // получение данных из тела POST-запроса
@@ -73,20 +73,13 @@ booksAPIRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
         fileCover,
     } = req.body
 
-    // console.log({ ...req.headers })
-    //console.log({ ...req.body })
-    //console.log({ ...req.file })
-
-
-
     // загрузка файла
     // и сохранение оригинального имени (fileName)
     // fileBook - сгенерированное имя файла на сервере
-    let { fileBook } = req.body
-    let fileName = ''
-    if (req.file) {
+    let { fileBook, fileName } = req.body
+     if (req.file) {
         fileBook = req.file.path
-        fileName = req.file.originalname
+        fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
     }
 
     // создание нового объекта - Книга
@@ -123,8 +116,8 @@ booksAPIRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
  * @params {String} id   - ID книги
  * @params {JSON}   body - новые параметры книги (title,description,authors,favorite,fileCover,fileName)
  * @returns code - 200 или 404 (если не найдена книга)
- * @returns body - информация о книге {...}
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns body - информация о книге в формате JSON {...}
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.put('/:id', fileMulter.single('fileBook'), (req, res) => {
     // получение параметров запроса
@@ -171,8 +164,8 @@ booksAPIRouter.put('/:id', fileMulter.single('fileBook'), (req, res) => {
  * @constructor
  * @params {multipart-formdata} fileBook - загружаемый файл
  * @returns code - 201 или 403 или 404 (если ошибка)
- * @returns body - измененный объект с именем добавленного файла ({...}) 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ * @returns body - измененный объект с именем добавленного файла в формате JSON ({...}) 
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => {
     // получение параметров запроса
@@ -191,7 +184,7 @@ booksAPIRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => 
         let fileName = ''
         if (req.file) {
             fileBook = req.file.path
-            fileName = req.file.originalname
+            fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
         }
 
         const newData = {
@@ -220,7 +213,7 @@ booksAPIRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => 
  * @params {string} id - ID книги
  * @returns code - 200 или 404 (если не найдена книга)
  * @returns body - содержимое файла 
- *                 или информация об ошибке {"errcode", "errmsg"}
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.get('/:id/download', (req, res) => {
     // получение параметров запроса
@@ -260,7 +253,7 @@ booksAPIRouter.get('/:id/download', (req, res) => {
  * @params {String} id   - ID книги
  * @returns code - 200 или 404 (если не найдена книга)
  * @returns body - 'ok'
- *                 или информация об ошибке {"errcode", "errmsg"}
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
 */
 booksAPIRouter.delete('/:id', (req, res) => {
     // получение параметров запроса
@@ -275,7 +268,7 @@ booksAPIRouter.delete('/:id', (req, res) => {
     } else {
         // данные удалены
         res.status(200)
-        res.json('ok')
+        res.json({data: 'ok'})
     }
 })
 
