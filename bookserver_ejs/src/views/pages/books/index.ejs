@@ -12,6 +12,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Заголовок</th>
                 <th scope="col">Авторы</th>
+                <th scope="col">Число скачиваний</th>
                 <th scope="col" class="text-right">Действия</th>
             </tr>
             </thead>
@@ -22,6 +23,7 @@
                         <th scope="row"><%= idx +1 %></th>
                         <td><a href="/books/<%= el.id %>"><%= el.title %></td>
                         <td><%= el.authors %></td>
+                        <td><span title="<%= el.counter.datetime %>"><%= el.counter.counter %></span></td>
                         <td class="text-right">
                             <a class="btn btn-sm btn-success" href="/books/<%= el.id %>">
                                 <i class="fa fa-eye" aria-hidden="true"></i>

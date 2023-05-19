@@ -1,12 +1,14 @@
 import express from 'express';
 
-import { JSONError } from '../../error.js';
 import fileMulter from '../../middleware/fileMulter.js';
+import CONFIG from '../../config.js';
+import { delCounter, getCounter, incCounter } from './counter.js';
 
 // нужно, чтобы fetch работал
-const API_URL = '/api/books/'
 const URL_PREFIX = 'http://'
-
+const API_HOST = process.env.API_SERVER || CONFIG.api_server || 'localhost'
+const API_PORT = process.env.API_PORT || CONFIG.api_port || 5000
+const API_URL = '/api/books/'
 
 const booksRouter = express.Router()
 
@@ -19,13 +21,19 @@ const booksRouter = express.Router()
 */
 booksRouter.get('/', (req, res) => {
     // вызов API-метода GET /api/books
-    fetch(URL_PREFIX + req.headers?.host + API_URL).then((apiRes) => {
+    fetch(URL_PREFIX + API_HOST + ':' + API_PORT + API_URL).then((apiRes) => {
         if (apiRes.ok) {
-            apiRes.json().then((data) => {
+            apiRes.json().then(async (data) => {
+                let dataWithCounters = []
+                for (let item of data) {
+                    let counter = await getCounter(item.id)
+                    dataWithCounters.push({ ...item, counter })
+                }
+
                 res.status(200)
                 res.render('pages/books/index', {
                     title: 'Список книг',
-                    data
+                    data: dataWithCounters
                 })
             })
         }
@@ -33,7 +41,10 @@ booksRouter.get('/', (req, res) => {
             res.status(apiRes.status)
             res.render('errors/index', {
                 title: apiRes.status,
-                data: JSONError.make(apiRes.status, 'Что-то на сервере пошло не так... Обратитесь к администратору!')
+                data: {
+                    errcode: apiRes.status,
+                    errmsg: 'Что-то на сервере пошло не так... Обратитесь к администратору!'
+                }
             })
         }
     })
@@ -70,7 +81,7 @@ booksRouter.get('/add', (req, res) => {
 */
 booksRouter.post('/add', fileMulter.single('fileBook'), (req, res) => {
 
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL
+    const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL
 
     let reqBody = req.body
 
@@ -134,14 +145,17 @@ booksRouter.get('/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
     // вызов API-метода GET /api/books/:id
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id
     fetch(apiUrl).then((apiRes) => {
         if (apiRes.ok) {
             apiRes.json().then((data) => {
-                res.status(200)
-                res.render('pages/books/view', {
-                    title: 'Информация о книге ' + data.title,
-                    data
+                getCounter(id).then((counter) => {
+                    res.status(200)
+                    res.render('pages/books/view', {
+                        title: 'Информация о книге ' + data.title,
+                        data,
+                        counter
+                    })
                 })
             })
         }
@@ -173,7 +187,7 @@ booksRouter.get('/edit/:id', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
 
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id
     fetch(apiUrl).then((apiRes) => {
         if (apiRes.ok) {
             apiRes.json().then((data) => {
@@ -214,7 +228,7 @@ booksRouter.post('/edit/:id', fileMulter.single('fileBook'), (req, res) => {
     // получение параметров запроса
     const { id } = req.params
 
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id
 
     let reqBody = req.body
 
@@ -272,9 +286,29 @@ booksRouter.get('/:id/download', (req, res) => {
     // получение параметров запроса
     const { id } = req.params
 
-    // вызов API-метода GET /api/books/:id/download
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id + '/download'
-    res.redirect(apiUrl)
+    //увеличение счетчика просмотра
+    incCounter(id).then((data) => {
+        // вызов API-метода GET /api/books/:id/download
+        //const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id + '/download'
+        //res.redirect(apiUrl)
+
+        // получение имени файла и скачивание его отсюда
+        // REDIRECT между docker-ами не работает
+        const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id
+        fetch(apiUrl).then((apiRes) => {
+            if (apiRes.ok) {
+                apiRes.json().then((data) => {
+                    res.download(data.fileBook, data.fileName, (err, downloadRes) => {
+                        if (err) {
+                            res.status(404)
+                            res.json({ errcode: 404, errmsg: 'Ошибка чтения файла' })
+                        }
+                    })
+                })
+            }
+        })
+
+    })
 })
 
 
@@ -295,13 +329,15 @@ booksRouter.post('/delete/:id', (req, res) => {
         method: 'DELETE'
     }
 
-    const apiUrl = URL_PREFIX + req.headers?.host + API_URL + id
+    const apiUrl = URL_PREFIX + API_HOST + ':' + API_PORT + API_URL + id
     // вызов API-метода DELETE /api/books/:id
     fetch(apiUrl, headers).then((apiRes) => {
         if (apiRes.ok) {
-            res.redirect('/books')
-        }
-        else {
+            // удаляем счетчик скачиваний
+            delCounter(id).then((data) => {
+                res.redirect('/books')
+            })
+        } else {
             apiRes.json().then((data) => {
                 res.status(apiRes.status)
                 res.render('errors/index', {

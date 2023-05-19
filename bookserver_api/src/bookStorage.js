@@ -1,8 +1,11 @@
 import fs from 'fs'
 import { Book } from './book.js'
+import CONFIG from './config.js';
+
+const defaultFilename = (CONFIG.data_path || "data/") + "bookstorage.json" 
 
 class BookStorage {
-    constructor(fileName = "data/bookstorage.json") {
+    constructor(fileName = defaultFilename) {
         this.fileName = fileName
         try {
             this.storage = JSON.parse(fs.readFileSync(fileName, 'utf8')) || [];
@@ -22,10 +25,17 @@ class BookStorage {
     }
 
     get(id) {
-        return this.storage.find((e) => e.id === id)
+        return this.storage.find((e) => e.id == id)
     }
 
     add(item) {
+        // меняем ID книги, если такая в коллекции уже есть
+        if (this.get(item.id)) {
+            item.id = +this.storage[this.storage.length-1].id + 1
+            while(this.get(item.id)) {
+                item.id++ 
+            }
+        }
         // проверка, что item является классом Book
         // и книги с добавляемым ID в коллекции нет 
         if (item instanceof Book && this.get(item.id) === undefined) {
@@ -37,7 +47,7 @@ class BookStorage {
     }
 
     modify(id, item) {
-        const idx = this.storage.findIndex((e) => e.id === id)
+        const idx = this.storage.findIndex((e) => e.id == id)
         if (idx !== -1) {
             this.storage[idx] = {
                 ...this.storage[idx],
@@ -51,7 +61,7 @@ class BookStorage {
     }
 
     delete(id) {
-        const idx = this.storage.findIndex((e) => e.id === id)
+        const idx = this.storage.findIndex((e) => e.id == id)
         if (idx !== -1) {
             this.storage.splice(idx, 1)
             this.dumpToFile()

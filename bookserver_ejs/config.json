@@ -1,0 +1,9 @@
+{
+    "hostname": "bookserver_ejs",
+    "port": 3000,
+    "data_path": "../data/fileBook",
+    "api_server": "localhost",
+    "api_port": 5000,
+    "counter_server": "localhost",
+    "counter_port": 5010
+ }

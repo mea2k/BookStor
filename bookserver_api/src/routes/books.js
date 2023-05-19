@@ -1,10 +1,10 @@
 import express from 'express';
 import fs from 'fs'
 
-import { bookStorage } from '../../bookStorage.js';
-import { Book } from '../../book.js';
-import { JSONError } from '../../error.js';
-import fileMulter from '../../middleware/fileMulter.js';
+import { bookStorage } from '../bookStorage.js';
+import { Book } from '../book.js';
+import { JSONError } from '../error.js';
+import fileMulter from '../middleware/fileMulter.js';
 
 
 
@@ -77,9 +77,9 @@ booksAPIRouter.post('/', fileMulter.single('fileBook'), (req, res) => {
     // и сохранение оригинального имени (fileName)
     // fileBook - сгенерированное имя файла на сервере
     let { fileBook, fileName } = req.body
-     if (req.file) {
+    if (req.file) {
         fileBook = req.file.path
-        fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
+        fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8')
     }
 
     // создание нового объекта - Книга
@@ -138,9 +138,11 @@ booksAPIRouter.put('/:id', fileMulter.single('fileBook'), (req, res) => {
         newBookData.fileCover = req.body.fileCover
     if (req.body.fileBook)
         newBookData.fileBook = req.body.fileBook
+    if (req.body.fileName)
+        newBookData.fileName = req.body.fileName
     if (req.file) {
         newBookData.fileBook = req.file.path
-        newBookData.fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
+        newBookData.fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8')
     }
 
     // выполнение действия с хранилищем - 
@@ -184,7 +186,7 @@ booksAPIRouter.post('/:id/upload', fileMulter.single('fileBook'), (req, res) => 
         let fileName = ''
         if (req.file) {
             fileBook = req.file.path
-            fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8') 
+            fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8')
         }
 
         const newData = {
@@ -230,7 +232,7 @@ booksAPIRouter.get('/:id/download', (req, res) => {
         res.status(200)
         // отправляем файл через метод res.download
         // и указываем оригинальное имя файла
-         res.download(fileBook, fileName, (err, data) => {
+        res.download(fileBook, fileName, (err, data) => {
             //fs.readFile(fileBook, 'utf8', (err, data) => {
             if (err) {
                 res.status(404)
@@ -268,7 +270,7 @@ booksAPIRouter.delete('/:id', (req, res) => {
     } else {
         // данные удалены
         res.status(200)
-        res.json({data: 'ok'})
+        res.json({ data: 'ok' })
     }
 })
 

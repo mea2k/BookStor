@@ -1,12 +1,12 @@
 import fs from 'fs'
 import os from 'os'
+import CONFIG from '../config.js'
 
-const LOGFILE = 'data/server.log' 
+const LOGFILE = (CONFIG.data_path || "data/") + "server.log" 
 
 const logger = (req, res, next) => {
     const { url, method } = req
     const date = new Date()
-
 
     const dateStr = date.toLocaleString('ru-RU').replace(',', '')
 

@@ -13,7 +13,7 @@
                 <h6><%= data.authors %></h6>
                 <p class="card-text"><%= data.description %></p>
 
-                <a href="/books/<%= data.id %>/download"><%= data.fileName %></a>
+                <a href="/books/<%= data.id %>/download"><%= data.fileName %></a><span title="<%= counter.datetime %>">(<%= counter.counter %>)</span>
 
                 <div class="text-right">
                     <a class="btn btn-sm btn-primary" href="/books/edit/<%= data.id %>">
