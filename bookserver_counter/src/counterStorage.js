@@ -2,7 +2,7 @@ import fs from 'fs'
 import { Counter } from './counter.js'
 import CONFIG from './config.js';
 
-const defaultFilename = (CONFIG.data_path || "data/") + "bookcounter.json"
+const defaultFilename = (process.env.DATA_PATH || CONFIG.data_path || "data/") + "bookcounter.json"
 
 class CounterStorage {
     constructor(fileName = defaultFilename) {

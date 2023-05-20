@@ -2,7 +2,7 @@ import fs from 'fs'
 import { Book } from './book.js'
 import CONFIG from './config.js';
 
-const defaultFilename = (CONFIG.data_path || "data/") + "bookstorage.json" 
+const defaultFilename = (process.env.DATA_PATH || CONFIG.data_path || "data/") + "bookstorage.json" 
 
 class BookStorage {
     constructor(fileName = defaultFilename) {

@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   bookstorapi:
-    image: bookstor_api:dev
+    image: bookstor_api:debug
     build:
       context: ./bookserver_api
       dockerfile: Dockerfile_debug
@@ -20,7 +20,7 @@ services:
     command: npm run watch
 
   bookstorcounter:
-    image: bookstor_counter:dev
+    image: bookstor_counter:debug
     build:
       context: ./bookserver_counter
       dockerfile: Dockerfile_debug
@@ -38,7 +38,7 @@ services:
     command: npm run watch
 
   bookstorejs:
-    image: bookstor_ejs:dev
+    image: bookstor_ejs:debug
     build:
       context: ./bookserver_ejs
       dockerfile: Dockerfile_debug

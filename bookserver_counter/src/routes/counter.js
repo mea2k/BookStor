@@ -32,11 +32,10 @@ counterAPIRouter.get('/:bookId', (req, res) => {
 })
 
 
-/** УВЕЛИЧЕНИЕ СЧЕЬЧИКА КНИГИ
+/** УВЕЛИЧЕНИЕ СЧЕТЧИКА КНИГИ
  * URL:     /api/counter/:bookId/inc
  * METHOD:  POST
  * @constructor
- * @params {JSON} body - параметры новой книги (title,description,authors,favorite,fileCover,fileName)
  * @returns code - 201 или 403 (если ошибка)
  * @returns body - число посещений в формате JSON ({bookId, counter, datetime})
  *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
@@ -63,6 +62,14 @@ counterAPIRouter.post('/:bookId/inc',  (req, res) => {
 })
 
 
+/** УДАЛЕНИЕ СЧЕТЧИКА КНИГИ
+ * URL:     /api/counter/:bookId
+ * METHOD:  DELETE
+ * @constructor
+ * @returns code - 200 или 404 (если ошибка)
+ * @returns body - '1' при успехе
+ *                 или информация об ошибке в формате JSON {"errcode", "errmsg"}
+*/
 counterAPIRouter.delete('/:bookId', (req, res) => {
     // получение параметров запроса
     const { bookId } = req.params

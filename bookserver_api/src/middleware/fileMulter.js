@@ -4,7 +4,13 @@ import multer from 'multer'
 
 /////////////////////////////////////////////////
 
-const UPLOAD_PATH = 'public/fileBook'
+const UPLOAD_PATH = process.env.DATA_PATH ||  CONFIG.data_path || 'public/fileBook'
+
+/////////////////////////////////////////////////
+// Проверка на существование пути и создание его
+if (!fs.existsSync(UPLOAD_PATH)){
+    fs.mkdirSync(UPLOAD_PATH, { recursive: true });
+}
 
 /////////////////////////////////////////////////
 
