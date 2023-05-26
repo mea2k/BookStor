@@ -1,4 +1,4 @@
-import books from "../models/books.js"
+import books from "./models/books.js"
 
 // СТАТИЧЕСКИЙ КЛАСС ДЛЯ ГЕНЕРАЦИИ ID объектов
 class globalCounter {
