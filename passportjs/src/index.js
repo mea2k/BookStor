@@ -22,17 +22,6 @@ const options = {
 }
 
 const verify = (login, password, cb) => {
-    ///////////////
-    // const testUser = {
-    //     _id: "123",
-    //     login: login,
-    //     name: "test",
-    //     email: "test@1.2",
-    //     password: password
-    // }
-    // return cb(null, testUser)
-    ///////////////
-    //console.log(cb.toString())
     users.findOne({ login }).then(async (user) => {
         // не найден пользователь
         if (!user)
@@ -54,16 +43,6 @@ passport.serializeUser((user, cb) => {
 });
 
 passport.deserializeUser(async (id, cb) => {
-    ///////////////
-    //  const testUser = {
-    //     _id: "123",
-    //     login: "tuser",
-    //     name: "test",
-    //     email: "test@1.2",
-    //     password: "123"
-    // }
-    // return cb(null, testUser)
-    ///////////////   
     try {
         const user = await users.findById(id)
         if (user)
