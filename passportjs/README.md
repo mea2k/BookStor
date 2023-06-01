@@ -68,8 +68,8 @@
 
 
 1. Создать папку для хранения данных (например, `data`).
-2. В файле [docker-compose.yml](docker-compose.yml) для контейнера __mongo__  указать монтируемый путь /`data/db` на созданную в п.1 папку: `./mongo/data:/data/db`
-3. В файле [docker-compose.yml](docker-compose.yml) для контейнера __mongo__  задать порт проброса с хоста (например, `ports: [ 27017:27017 ]`).
+2. В файле [docker-compose.yml](Docker-compose.yml) для контейнера __mongo__  указать монтируемый путь /`data/db` на созданную в п.1 папку: `./mongo/data:/data/db`
+3. В файле [docker-compose.yml](Docker-compose.yml) для контейнера __mongo__  задать порт проброса с хоста (например, `ports: [ 27017:27017 ]`).
 5. Выполнить команду
 ```
 docker compose up
