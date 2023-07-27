@@ -1,0 +1,8 @@
+{
+    "hostname": "bookserver_api",
+    "port": 5000,
+    "data_path": "../data/",
+    "routes": {
+        "books": "/api/books"
+    }
+}

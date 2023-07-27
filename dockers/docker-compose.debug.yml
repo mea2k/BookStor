@@ -1,0 +1,63 @@
+version: '3.4'
+
+services:
+  bookstorapi:
+    image: bookstor_api:debug
+    build:
+      context: ./bookserver_api
+      dockerfile: Dockerfile_debug
+    environment:
+      NODE_ENV: development
+      HOSTNAME: bookserver_api
+      PORT: 5000
+      DATA_PATH: ../data/
+    ports:
+      - 5000:5000
+    volumes:
+      - ./data:/usr/src/data
+      - ./bookserver_api:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run watch
+
+  bookstorcounter:
+    image: bookstor_counter:debug
+    build:
+      context: ./bookserver_counter
+      dockerfile: Dockerfile_debug
+    environment:
+      NODE_ENV: development
+      HOSTNAME: bookserver_counter
+      PORT: 5010
+      DATA_PATH: ../data/
+    ports:
+      - 5010:5010
+    volumes:
+      - ./data:/usr/src/data
+      - ./bookserver_counter:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run watch
+
+  bookstorejs:
+    image: bookstor_ejs:debug
+    build:
+      context: ./bookserver_ejs
+      dockerfile: Dockerfile_debug
+    environment:
+      NODE_ENV: development
+      HOSTNAME: bookserver_ejs
+      PORT: 3000
+      DATA_PATH: ../data/fileBook
+      API_SERVER: bookstorapi
+      API_PORT: 5000
+      COUNTER_SERVER: bookstorcounter
+      COUNTER_PORT: 5010
+    ports:
+      - 80:3000
+    volumes:
+      - ./data:/usr/src/data
+      - ./bookserver_ejs:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run watch
+    depends_on:
+      - bookstorapi
+      - bookstorcounter

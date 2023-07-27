@@ -1,0 +1,54 @@
+version: '3.4'
+
+services:
+  bookstorapi:
+    image: makevg/bookstor_api
+    build:
+      context: ./bookserver_api
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      HOSTNAME: bookserver_api
+      PORT: 5000
+      DATA_PATH: ../data/
+    ports:
+      - 5000:5000
+    volumes:
+      - ./data:/usr/src/data
+
+  bookstorcounter:
+    image: makevg/bookstor_counter
+    build:
+      context: ./bookserver_counter
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      HOSTNAME: bookserver_counter
+      PORT: 5010
+      DATA_PATH: ../data/
+    ports:
+      - 5010:5010
+    volumes:
+      - ./data:/usr/src/data
+
+  bookstorejs:
+    image: makevg/bookstor_ejs
+    build:
+      context: ./bookserver_ejs
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      HOSTNAME: bookserver_ejs
+      PORT: 3000
+      DATA_PATH: ../data/fileBook
+      API_SERVER: bookstorapi
+      API_PORT: 5000
+      COUNTER_SERVER: bookstorcounter
+      COUNTER_PORT: 5010
+    ports:
+      - 80:3000
+    volumes:
+      - ./data:/usr/src/data
+    depends_on:
+      - bookstorapi
+      - bookstorcounter

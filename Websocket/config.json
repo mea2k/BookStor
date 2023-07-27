@@ -1,0 +1,10 @@
+{
+    "HOSTNAME": "localhost",
+    "PORT": 3000,
+    "DATA_PATH": "data/",
+    "BOOKS_PATH": "data/filebook/",
+    "STORAGE_TYPE": "file",
+    "ROUTES": {
+        "books": "/api/books"
+    }
+}
