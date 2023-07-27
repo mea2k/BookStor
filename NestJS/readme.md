@@ -1,1 +1,0 @@
-# BookStor с использованием NestJS
