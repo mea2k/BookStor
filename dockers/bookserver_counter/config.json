@@ -1,8 +1,0 @@
-{
-    "hostname": "bookserver_counter",
-    "port": 5010,
-    "data_path": "../data/",
-    "routes": {
-        "counter": "/api/counter"
-    }
-}
