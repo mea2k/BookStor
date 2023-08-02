@@ -5,21 +5,19 @@ import { ItemStorage } from '../../interfaces/itemStorage';
 abstract class StorageDb<ItemType, ItemTypeDto, KeyName extends keyof ItemType>
 	implements ItemStorage<ItemType, ItemTypeDto, ItemType[KeyName]>
 {
-	protected _model: Model<ItemType & Document>;
+	protected _model: Model<ItemType>;
 	protected _keyName: KeyName;
 
 	protected abstract _getNextId(
 		id: ItemType[KeyName] | null,
 	): ItemType[KeyName];
 
-	// TODO: без ANY почему-то не работает
-	constructor(modelName: Model<ItemType & Document & any>, key: KeyName) {
-		this._model = modelName;
+	constructor(model: Model<ItemType>, key: KeyName) {
+		this._model = model;
 		this._keyName = key;
 	}
 
 	getAll(): Promise<ItemType[]> {
-		console.log(this._model);
 		return this._model.find().exec();
 	}
 
@@ -27,22 +25,26 @@ abstract class StorageDb<ItemType, ItemTypeDto, KeyName extends keyof ItemType>
 		return this._model.findById(id).exec();
 	}
 
-	async create(item: ItemType | ItemTypeDto): Promise<ItemType | null> {
+	async create(
+		item: ItemType | ItemTypeDto,
+	): Promise<ItemType & Document & any> {
 		const maxId: Array<ItemType> = await this._model
 			.find({}, { [this._keyName]: 1 })
 			.sort({ [this._keyName]: <SortOrder>-1 })
 			.limit(1);
 		// новый ID
 		const nextId = this._getNextId(
-			maxId ? <ItemType[KeyName]>maxId[0][this._keyName] : null,
+			maxId.length ? <ItemType[KeyName]>maxId[0][this._keyName] : null,
 		);
+
+		console.log('CREATE -', item);
 
 		const newItem = new this._model({ ...item, [this._keyName]: nextId });
 		return newItem.save();
 	}
 
 	// TODO: разобраться с ANY - Mongoose не принимает без any
-	update(
+	async update(
 		id: ItemType[KeyName],
 		item: ItemType | ItemTypeDto,
 	): Promise<ItemType | null> {
@@ -51,9 +53,10 @@ abstract class StorageDb<ItemType, ItemTypeDto, KeyName extends keyof ItemType>
 			.exec();
 	}
 
-	// TODO: разобраться с ANY - должно возвращать Promise<boolean>
-	delete(id: ItemType[KeyName]): Promise<any> {
-		return this._model.findByIdAndDelete(id).exec();
+	async delete(id: ItemType[KeyName]): Promise<boolean> {
+		const res = await this._model.findByIdAndDelete(id).exec();
+		if (res) return true;
+		return false;
 	}
 }
 

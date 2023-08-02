@@ -7,6 +7,8 @@ import { ConfigService } from '../../../config/config.service';
 @Injectable()
 class BookStorageFile extends StorageFile<IBook, IBookDto, '_id'> {
 	constructor(config: ConfigService) {
+		//console.log('BOOKSTORAGEFILE - constructor')
+
 		// Проверка на существование пути и создание его
 		if (!fs.existsSync(config.get('DATA_PATH'))) {
 			fs.mkdirSync(config.get('DATA_PATH'), { recursive: true });

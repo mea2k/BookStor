@@ -1,12 +1,17 @@
 import 'reflect-metadata';
 import { Injectable } from '@nestjs/common';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { StorageDb } from '../container/storageDb';
 import { IBook, IBookDto } from 'src/books/interfaces/book';
-import { BookModel } from './bookModel';
+import { Book, BookDocument } from './bookSchema';
+import { Connection, Model } from 'mongoose';
 
 @Injectable()
-class BookStorageDb extends StorageDb<IBook, IBookDto, '_id'> {
-	constructor() {
+class BookStorageDb extends StorageDb<BookDocument, IBookDto, '_id'> {
+	constructor(
+		@InjectModel(Book.name) private BookModel: Model<BookDocument>,
+		@InjectConnection() private connection: Connection,
+	) {
 		super(BookModel, '_id');
 	}
 

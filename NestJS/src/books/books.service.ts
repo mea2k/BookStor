@@ -1,17 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { BookStorageDb } from './storage/books/bookStorageDb';
 import { BookStorageFile } from './storage/books/bookStorageFile';
-import { IBookDto } from './interfaces/book';
+import { BOOKS_STORAGE, IBookDto } from './interfaces/book';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class BooksService {
-	private readonly _storage: BookStorageDb | BookStorageFile;
+	//private readonly _storage: BookStorageDb | BookStorageFile;
 
-	// TODO: пока работает только с файлами
 	constructor(
-		private readonly storage: /* BookStorageDb | */ BookStorageFile,
+		config: ConfigService,
+		@Inject(BOOKS_STORAGE)
+		private readonly _storage: BookStorageDb | BookStorageFile,
 	) {
-		this._storage = storage;
+		//console.log('BOOKSSERVICE - constructor');
 	}
 
 	/** ПОЛУЧЕНИЕ СПИСКА ВСЕХ КНИГ

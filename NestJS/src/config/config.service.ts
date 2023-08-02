@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import { IConfig } from './interfaces/config';
 
-@Injectable()
+@Injectable({ scope: Scope.DEFAULT })
 export class ConfigService {
 	private _config: IConfig;
 
@@ -50,5 +50,12 @@ export class ConfigService {
 	 */
 	get(key: string): string {
 		return this._config[key] || null;
+	}
+
+	/** ПОЛУЧЕНИЕ ЗНАЧЕНИЕ ВСЕХ НАСТРОЕК
+	 * @returns IConfig - JSON-объект типа IConfig со значениями всех параметров
+	 */
+	getAll(): IConfig {
+		return this._config;
 	}
 }

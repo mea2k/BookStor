@@ -10,12 +10,12 @@ abstract class StorageFile<
 {
 	protected _storage: Array<ItemType> = [];
 	protected _fileName: string;
+	protected _keyName: KeyName;
 
 	// TODO - дублирование кода (с storageDb) - как избавиться??
 	protected abstract _getNextId(
 		id: ItemType[KeyName] | null,
 	): ItemType[KeyName];
-	protected _keyName: KeyName;
 
 	protected _dumpToFile() {
 		// если файл настроен - сохраняем в него содержимое контейнера
@@ -44,7 +44,7 @@ abstract class StorageFile<
 		} catch (e) {
 			this._storage = [];
 		}
-		//console.log({...this.storage})
+
 		this._keyName = key;
 	}
 
