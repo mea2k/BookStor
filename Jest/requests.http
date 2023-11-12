@@ -1,0 +1,98 @@
+# примеры API-запросов
+
+@baseUrl = http://localhost:3000/api
+
+# Создание книги
+POST {{baseUrl}}/books
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXIxIiwiZW1haWwiOiJlbWFpbEAxMS5yciIsImZpcnN0TmFtZSI6IlVzZXIxIiwiX2lkIjoxLCJpYXQiOjE2OTkzOTA3MjUsImV4cCI6MTY5OTM5MDg0NX0.S8s1MrpITSHBS1biEgQNDZP-dZpfWas6XjJqoR1yBU8
+
+{
+  "title": "Book 111",
+  "authors": ["Author1", "Author2"],
+  "description": "infotext"
+}
+
+###
+
+# Изменение книги
+PUT {{baseUrl}}/books/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyMSIsIl9pZCI6MywiaWF0IjoxNjk5MzkwODkxLCJleHAiOjE2OTkzOTEwMTF9.cYkbptNp5ewkdEHfU6Tnv_NahiCUUyfW27VD2qJQvxM
+
+{
+  "title": "Book 3",
+  "authors": ["Author45"],
+  "description": "infotext3"
+}
+
+###
+
+# Получение информации о всех книгах
+GET {{baseUrl}}/books
+Content-Type: application/json
+
+###
+
+# Получение информации о конкретной книге
+GET {{baseUrl}}/books/2
+Content-Type: application/json
+
+###
+
+# Удаление конкретной книги
+DELETE {{baseUrl}}/books/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXIxIiwiZW1haWwiOiJlbWFpbEAxMS5yciIsImZpcnN0TmFtZSI6IlVzZXIxIiwiX2lkIjoxLCJpYXQiOjE2OTkzOTA3MjUsImV4cCI6MTY5OTM5MDg0NX0.S8s1MrpITSHBS1biEgQNDZP-dZpfWas6XjJqoR1yBU8
+
+###
+
+
+# Создание пользователя
+POST {{baseUrl}}/users/signup
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "email": "email@11.rr",
+  "firstName": "User1",
+  "password1": "123",
+  "password2": "123"
+}
+
+###
+
+# Получение информации о пользователе
+GET {{baseUrl}}/users/2
+Content-Type: application/json
+
+###
+
+
+# Аутентификация
+POST {{baseUrl}}/users/signin
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "password": "123"
+}
+
+###
+
+# Получение токена при аутентификации
+POST {{baseUrl}}/users/token
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "password": "123"
+}
+
+###
+
+# Профиль пользователя 
+# (доступен только после аутентификации - по токену)
+GET {{baseUrl}}/users/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXIxIiwiZW1haWwiOiJlbWFpbEAxMS5yciIsImZpcnN0TmFtZSI6IlVzZXIxIiwiX2lkIjoxLCJpYXQiOjE2OTkzOTA3MjUsImV4cCI6MTY5OTM5MDg0NX0.S8s1MrpITSHBS1biEgQNDZP-dZpfWas6XjJqoR1yBU8
