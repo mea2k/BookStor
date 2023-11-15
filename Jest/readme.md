@@ -45,7 +45,8 @@
 1. `CONFIG` ([src/modules/config/config.module.ts](src/modules/config/config.module.ts)) - настройки функционирования приложения.
 2. `USERS`  ([src/modules/users/users.module.ts](src/modules/users/users.module.ts)) - работа с пользователями (добавление, хранение, запросы).
 3. `AUTH`  ([src/modules/auth/auth.module.ts](src/modules/auth/auth.module.ts)) - аутентификация пользователей и формирование JWT.
-4. `APP`  ([src/app.module.ts](src/app.module.ts)) - само приложение.
+4. `BOOKS` ([src/modules/books/books.module.ts](src/modules/books/books.module.ts)) - работа с книгами (добавление, хранение, запросы).
+5. `APP`  ([src/app.module.ts](src/app.module.ts)) - само приложение.
 
 
 ### Модуль "CONFIG"
@@ -324,24 +325,6 @@ docker run --name auth-jwt --rm -it -v ~/data:/usr/src/app/data -v ~/public:/usr
 1. Программой `PostMan`.
 2. Программной `curl`.
 3. Файлом [requests.http](requests.http) в среде VSCode с установленным расширением `REST Client`.
-
-
-# Задание
-[https://github.com/netology-code/ndtnf-homeworks/tree/master/011-nestjs-authentication](https://github.com/netology-code/ndtnf-homeworks/tree/master/011-nestjs-authentication)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
