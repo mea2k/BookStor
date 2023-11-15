@@ -1,0 +1,157 @@
+# примеры API-запросов
+
+@baseUrl = http://localhost:3000/api
+
+
+###############################################################################
+# РАБОТА С ПОЛЬЗОВАТЕЛЯМИ
+###############################################################################
+
+# Создание пользователя
+POST {{baseUrl}}/users/signup
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "email": "email@11.rr",
+  "firstName": "UserXX",
+  "password1": "123",
+  "password2": "123"
+}
+
+###
+
+# Получение информации о пользователе
+GET {{baseUrl}}/users/2
+Content-Type: application/json
+
+###
+
+# Аутентификация
+POST {{baseUrl}}/users/signin
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "password": "123"
+}
+
+###
+
+# Получение токена при аутентификации
+POST {{baseUrl}}/users/token
+Content-Type: application/json
+
+{
+  "login": "userXX",
+  "password": "123"
+}
+
+###
+
+# Профиль пользователя 
+# (доступен только после аутентификации - по токену)
+GET {{baseUrl}}/users/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+Authorization2: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXIyIiwiZW1haWwiOiJlbWFpbEAxMS5yciIsImZpcnN0TmFtZSI6IlVzZXIyIiwiX2lkIjoyLCJpYXQiOjE2OTk5OTM4MDEsImV4cCI6MTY5OTk5NzQwMX0.bvLANsfLWl9wEx-BXXPefG9WsQOSBC0eeh9XHXs8yl0
+
+###############################################################################
+# РАБОТА С КНИГАМИ
+###############################################################################
+
+# Создание книги
+POST {{baseUrl}}/books
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+
+{
+  "title": "Book 115",
+  "authors": ["Author3", "Author2"],
+  "description": "infotext"
+}
+
+###
+
+# Изменение книги
+PUT {{baseUrl}}/books/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+
+{
+  "title": "Book 3",
+  "authors": ["Author45"],
+  "description": "infotext3"
+}
+
+###
+
+# Получение информации о всех книгах
+GET {{baseUrl}}/books
+Content-Type: application/json
+
+###
+
+# Получение информации о конкретной книге
+GET {{baseUrl}}/books/2
+Content-Type: application/json
+
+###
+
+# Удаление конкретной книги
+DELETE {{baseUrl}}/books/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+
+###
+
+###############################################################################
+# РАБОТА С КОММЕНТАРИЯМИ
+###############################################################################
+
+# Создание комментария к книге
+POST {{baseUrl}}/comments/book/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+Authorization2: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXIyIiwiZW1haWwiOiJlbWFpbEAxMS5yciIsImZpcnN0TmFtZSI6IlVzZXIyIiwiX2lkIjoyLCJpYXQiOjE2OTk5OTM4MDEsImV4cCI6MTY5OTk5NzQwMX0.bvLANsfLWl9wEx-BXXPefG9WsQOSBC0eeh9XHXs8yl0
+
+{
+  "comment": "comment_uXX_b3"
+}
+
+###
+
+# Получение комментариев о всех книгах
+GET {{baseUrl}}/comments
+Content-Type: application/json
+
+###
+
+# Получение комментариев о выбранной книге
+GET {{baseUrl}}/comments/book/2
+Content-Type: application/json
+
+###
+
+# Получение конкретного комментария
+GET {{baseUrl}}/comments/2
+Content-Type: application/json
+
+###
+
+# Изменение конкретного комментария
+PUT {{baseUrl}}/comments/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+
+{
+  "comment": "comment_modified"
+}
+
+###
+# Удаление конкретного комментария
+DELETE {{baseUrl}}/comments/2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InVzZXJYWCIsImVtYWlsIjoiZW1haWxAMTEucnIiLCJmaXJzdE5hbWUiOiJVc2VyWFgiLCJfaWQiOjMsImlhdCI6MTY5OTk5MzcyMiwiZXhwIjoxNjk5OTk3MzIyfQ.kMbbVNw2JSemVZSML8jRloEO1Bxvvwp7BKMcQ1ATea8
+
+###
